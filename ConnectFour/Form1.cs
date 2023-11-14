@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Drawing;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Server;
 
@@ -19,8 +24,9 @@ namespace ConnectFour
             InitializeComponent();
             InitBoxes();
             _board.TestData();
+            new Thread(StartSocket);
         }
-        
+
         private void PaintBox(object sender, PaintEventArgs e)
         {
             var item = sender as PictureBox;
@@ -38,11 +44,11 @@ namespace ConnectFour
                         break;
                 }
             }
-            
-            if (item != null) 
+
+            if (item != null)
                 e.Graphics.FillEllipse(brush, 0, 0, item.Width, item.Height);
         }
-        
+
 
         private void InitBoxes()
         {
@@ -59,6 +65,7 @@ namespace ConnectFour
                         pictureBox.Paint += PaintBox;
                         pictureBox.Resize += TriggerNewRender;
                     }
+
                     counter++;
                 }
             }
@@ -68,6 +75,26 @@ namespace ConnectFour
         {
             var p = sender as PictureBox;
             p?.Invalidate();
+        }
+
+        private void StartSocket()
+        {
+            var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            s.Bind(new IPEndPoint(0, 1234));
+            s.Listen(2);
+            var handler = s.Accept();
+            while (true)
+            {
+                var buffer = new byte[1_024];
+                var received = handler.Receive(buffer, SocketFlags.None);
+                var response = Encoding.UTF8.GetString(buffer, 0, received);
+
+                Console.WriteLine(response);
+
+                var msg = "Hello World!";
+                var msgBuffer = Encoding.UTF8.GetBytes(msg);
+                handler.Send(msgBuffer);
+            }
         }
     }
 }
