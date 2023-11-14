@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Server;
 
@@ -6,52 +8,46 @@ namespace ConnectFour
 {
     public partial class Form1 : Form
     {
+        private PictureBox[,] _boxes = new PictureBox[6, 7];
         private Board _board = new Board();
+
         public Form1()
         {
             InitializeComponent();
-            var server = new Server();
+            InitBoxes();
+            //var server = new Server();
         }
-
-        private void RenderGameStart(object sender, PaintEventArgs e)
+        
+        private void PaintBox(object sender, PaintEventArgs e)
         {
-            _board.TestData();
-            var eGraphics = e.Graphics;
-            var canvasHeight = Canvas.Height;
-            var canvasWidth = Canvas.Width;
-            const int columns = 7;
-            const int rows = 6;
-            var circleDiameter = canvasHeight / columns - 20;
+            var item = sender as PictureBox;
+            e.Graphics.FillEllipse(Brushes.Cyan, 0,0, item.Width, item.Height);
+        }
+        
 
-            var spaceColumns = (canvasWidth - circleDiameter * columns) / 8;
-            var spaceRows = (canvasHeight - circleDiameter * rows) / 8;
-
-            
-            var y = canvasHeight - spaceRows * 2;
-            for (var i = 0; i < rows; i++)
-            {   
-                var x = 0;
-                y -= i == 0 ? circleDiameter : (circleDiameter + spaceRows);
-                for (var j = 0; j < columns; j++)
+        private void InitBoxes()
+        {
+            var counter = 1;
+            for (var i = 0; i < _boxes.GetLength(0); i++)
+            {
+                for (var j = 0; j < _boxes.GetLength(1); j++)
                 {
-                    var color = _board._pos[i,j];
-                    x += j == 0 ? circleDiameter : circleDiameter + spaceColumns;
-                    var brush = Brushes.Gray;
-                    switch (color)
+                    var pictureBoxName = "pictureBox" + counter;
+                    if (Controls.Find(pictureBoxName, true).FirstOrDefault() is PictureBox pictureBox)
                     {
-                        case "Green":
-                            brush = Brushes.Green;
-                            break;
-                        case "Red":
-                            brush = Brushes.Blue;
-                            break;
+                        _boxes[i, j] = pictureBox;
+                        pictureBox.Paint += PaintBox;
+                        pictureBox.Resize += TriggerNewRender;
                     }
-                        
-                        
-                    eGraphics.FillEllipse(brush, x, y, circleDiameter, circleDiameter);
-    
+                    counter++;
                 }
             }
+        }
+
+        private void TriggerNewRender(object sender, EventArgs e)
+        {
+            var p = sender as PictureBox;
+            p?.Invalidate();
         }
     }
 }
