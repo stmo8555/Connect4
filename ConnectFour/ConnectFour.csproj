@@ -47,7 +47,6 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Board.cs" />
-        <Compile Include="Server.cs" />
         <Compile Include="Form1.cs">
             <SubType>Form</SubType>
         </Compile>

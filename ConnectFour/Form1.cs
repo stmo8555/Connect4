@@ -8,20 +8,39 @@ namespace ConnectFour
 {
     public partial class Form1 : Form
     {
-        private PictureBox[,] _boxes = new PictureBox[6, 7];
-        private Board _board = new Board();
+        private readonly Brush _p1Brush = Brushes.Red;
+        private readonly Brush _p2Brush = Brushes.Blue;
+
+        private readonly PictureBox[,] _boxes = new PictureBox[6, 7];
+        private readonly Board _board = new Board();
 
         public Form1()
         {
             InitializeComponent();
             InitBoxes();
-            //var server = new Server();
+            _board.TestData();
         }
         
         private void PaintBox(object sender, PaintEventArgs e)
         {
             var item = sender as PictureBox;
-            e.Graphics.FillEllipse(Brushes.Cyan, 0,0, item.Width, item.Height);
+            var brush = Brushes.Gray;
+            if (item?.Tag is Tuple<int, int> index2d)
+            {
+                var playerData = _board._pos[index2d.Item1, index2d.Item2];
+                switch (playerData)
+                {
+                    case "p1":
+                        brush = _p1Brush;
+                        break;
+                    case "p2":
+                        brush = _p2Brush;
+                        break;
+                }
+            }
+            
+            if (item != null) 
+                e.Graphics.FillEllipse(brush, 0, 0, item.Width, item.Height);
         }
         
 
@@ -35,6 +54,7 @@ namespace ConnectFour
                     var pictureBoxName = "pictureBox" + counter;
                     if (Controls.Find(pictureBoxName, true).FirstOrDefault() is PictureBox pictureBox)
                     {
+                        pictureBox.Tag = new Tuple<int, int>(i, j);
                         _boxes[i, j] = pictureBox;
                         pictureBox.Paint += PaintBox;
                         pictureBox.Resize += TriggerNewRender;

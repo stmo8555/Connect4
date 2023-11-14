@@ -30,7 +30,8 @@ namespace Server
             //         }
             //     }
             // }
-            _pos[0, 1] = "Red";
+            _pos[0, 1] = "p1";
+            _pos[2, 5] = "p2";
         }
         
     }
