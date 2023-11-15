@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Net;
@@ -13,6 +14,7 @@ namespace ConnectFour
 {
     public partial class Form1 : Form
     {
+        private readonly Dictionary<Socket, string> _players = new Dictionary<Socket, string>();
         private readonly Brush _p1Brush = Brushes.Red;
         private readonly Brush _p2Brush = Brushes.Blue;
 
@@ -23,8 +25,7 @@ namespace ConnectFour
         {
             InitializeComponent();
             InitBoxes();
-            _board.TestData();
-            new Thread(StartSocket);
+            new Thread(StartSocket).Start();
         }
 
         private void PaintBox(object sender, PaintEventArgs e)
@@ -79,22 +80,60 @@ namespace ConnectFour
 
         private void StartSocket()
         {
-            var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            s.Bind(new IPEndPoint(0, 1234));
-            s.Listen(2);
-            var handler = s.Accept();
+            using (var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+            {
+                s.Bind(new IPEndPoint(0, 5000));
+                s.Listen(2);
+                var playerNumber = 1;
+                while (_players.Count < 2)
+                {
+                    var handler = s.Accept();
+                    new Thread(() => OnConnected(handler)).Start();
+                    _players.Add(handler, "p" + playerNumber);
+                    playerNumber++;
+                }
+            }
+            
+        }
+
+        private void OnConnected(Socket handler)
+        {
             while (true)
             {
+                var msg = "Server: Send index for 2dArray";
+                var msgBuffer = Encoding.UTF8.GetBytes(msg);
+                handler.Send(msgBuffer);
+                
+                
                 var buffer = new byte[1_024];
                 var received = handler.Receive(buffer, SocketFlags.None);
                 var response = Encoding.UTF8.GetString(buffer, 0, received);
+                if (_players.TryGetValue(handler, out var player))
+                    ParseData(player, response);
+                else
+                    Console.WriteLine(@"Can't find player");
+                
+                Console.WriteLine(@"Player: {0} -> move: {1}", player,response);
 
-                Console.WriteLine(response);
-
-                var msg = "Hello World!";
-                var msgBuffer = Encoding.UTF8.GetBytes(msg);
-                handler.Send(msgBuffer);
+                
             }
+        }
+
+        private void ParseData(string player,string msg)
+        {
+            // 1,2
+            var index = msg.Split(',');
+            if (index.Length != 2)
+                return;
+            int row, column;
+            
+            if(!int.TryParse(index[0], out row))
+                return;
+            if(!int.TryParse(index[1], out column))
+                return;
+            
+            _board._pos[row, column] = player;
+            Invoke(new MethodInvoker(() =>_boxes[row, column].Refresh()));
         }
     }
 }

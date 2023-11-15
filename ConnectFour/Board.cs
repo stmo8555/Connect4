@@ -5,16 +5,9 @@ namespace Server
 {
     public class Board
     {
-        public readonly string[,] _pos;
         private const int Rows = 6;
         private const int Columns = 7;
-        
-        
-
-        public Board()
-        {
-            _pos = new string[Rows, Columns];
-        }
+        public readonly string[,] _pos = new string[Rows,Columns];
 
         public void TestData()
         {
