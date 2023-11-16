@@ -7,18 +7,22 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Server;
+using ConnectFour;
 
 namespace ConnectFourGui
 {
     public partial class Form1 : Form
     {
+        private const int Rows = 6;
+        private const int Columns = 7;
+        
         private readonly Dictionary<string, Socket> _players = new Dictionary<string, Socket>();
+        public readonly string[,] _board = new string[Rows,Columns];
+        
         private readonly Brush _p1Brush = Brushes.Red;
         private readonly Brush _p2Brush = Brushes.Blue;
-
+        
         private readonly PictureBox[,] _boxes = new PictureBox[6, 7];
-        private readonly Board _board = new Board();
 
         public Form1()
         {
@@ -33,13 +37,13 @@ namespace ConnectFourGui
             var brush = Brushes.Gray;
             if (item?.Tag is Tuple<int, int> index2d)
             {
-                var playerData = _board._pos[index2d.Item1, index2d.Item2];
+                var playerData = _board[index2d.Item1, index2d.Item2];
                 switch (playerData)
                 {
-                    case "p1":
+                    case "1":
                         brush = _p1Brush;
                         break;
-                    case "p2":
+                    case "2":
                         brush = _p2Brush;
                         break;
                 }
@@ -81,16 +85,8 @@ namespace ConnectFourGui
         {
             using (var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
             {
-                s.Bind(new IPEndPoint(0, 5000));
-                s.Listen(2);
-                var playerNumber = 1;
-                while (_players.Count < 2)
-                {
-                    var handler = s.Accept();
-                    new Thread(() => OnConnected(handler)).Start();
-                    _players.Add("p" + playerNumber, handler);
-                    playerNumber++;
-                }
+                s.Connect("127.0.0.1", 5000);
+                OnConnected(s);
             }
         }
 
@@ -100,35 +96,29 @@ namespace ConnectFourGui
             {
                 var buffer = new byte[1_024];
                 var received = handler.Receive(buffer, SocketFlags.None);
-                var response = Encoding.UTF8.GetString(buffer, 0, received);
-                var found = false;
-                foreach (var player in _players.Where(player => player.Value == handler))
-                {
-                    ParseData(player.Key, response);
-                    Console.WriteLine(@"Player: {0} -> move: {1}", player.Key, response);
-                    found = true;
-                }
-                
-                if (!found)
-                    Console.WriteLine(@"Can't find player");
+                var data = Encoding.UTF8.GetString(buffer, 0, received);
+                ParseData(data);
             }
         }
 
-        private void ParseData(string player, string msg)
+        private void ParseData(string msg)
         {
-            // 1,2
-            var index = msg.Split(',');
-            if (index.Length != 2)
+            // 111221|221NNN
+            var boardRows = msg.Split('|');
+            if (boardRows.Length != 6)
                 return;
-            int row, column;
+            for (var i = 0; i < boardRows.Length; i++)
+            {
+                var row = boardRows[i];
+                for (var j = 0; j < boardRows[i].Length; j++)
+                {
+                    _board[i, j] = row[j].ToString();
+                }
+            }
 
-            if (!int.TryParse(index[0], out row))
-                return;
-            if (!int.TryParse(index[1], out column))
-                return;
 
-            _board._pos[row, column] = player;
-            Invoke(new MethodInvoker(() => _boxes[row, column].Refresh()));
+            
+            Invoke(new MethodInvoker(() => markerHolder.Refresh()));
         }
     }
 }

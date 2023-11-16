@@ -2,7 +2,7 @@
 using System.Windows.Forms;
 using ConnectFourGui;
 
-namespace Server
+namespace ConnectFour
 {
     static class Program
     {

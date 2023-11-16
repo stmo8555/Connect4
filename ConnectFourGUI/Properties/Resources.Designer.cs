@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Server.Properties {
+namespace ConnectFour.Properties {
     using System;
     
     

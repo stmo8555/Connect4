@@ -1,0 +1,1 @@
+Make it possible to make different rows and coloumns. The gui should be able to set this setting
