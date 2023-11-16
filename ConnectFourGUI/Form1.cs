@@ -6,11 +6,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Server;
 
-namespace ConnectFour
+namespace ConnectFourGui
 {
     public partial class Form1 : Form
     {

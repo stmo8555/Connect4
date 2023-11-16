@@ -1,4 +1,4 @@
-﻿namespace ConnectFourGui
+﻿namespace ConnectFourServer
 {
     internal class Program
     {

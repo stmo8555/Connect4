@@ -1,4 +1,4 @@
-﻿namespace ConnectFour
+﻿namespace ConnectFourGui
 {
     partial class Form1
     {

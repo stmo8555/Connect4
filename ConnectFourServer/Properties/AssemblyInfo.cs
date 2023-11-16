@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ConnectFour")]
+[assembly: AssemblyTitle("ConnectFourServer")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ConnectFour")]
+[assembly: AssemblyProduct("ConnectFourServer")]
 [assembly: AssemblyCopyright("Copyright ©  2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("B7A64900-22B2-4EB0-B839-73E9D367CF36")]
+[assembly: Guid("A7081888-24E9-404D-AD0B-5D4D816549AC")]
 
 // Version information for an assembly consists of the following four values:
 //
