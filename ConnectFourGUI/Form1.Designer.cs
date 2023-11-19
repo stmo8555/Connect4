@@ -73,6 +73,11 @@
             this.pictureBox40 = new System.Windows.Forms.PictureBox();
             this.pictureBox41 = new System.Windows.Forms.PictureBox();
             this.pictureBox42 = new System.Windows.Forms.PictureBox();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.StartBtn = new System.Windows.Forms.Button();
+            this.P1Label = new System.Windows.Forms.Label();
+            this.P2Label = new System.Windows.Forms.Label();
+            this.GetPlayerBtn = new System.Windows.Forms.Button();
             this.BottomContainer.SuspendLayout();
             this.markerHolder.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -117,6 +122,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox40)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox41)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox42)).BeginInit();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // BottomContainer
@@ -125,6 +131,7 @@
             this.BottomContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 73.06701F));
             this.BottomContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 26.93299F));
             this.BottomContainer.Controls.Add(this.markerHolder, 0, 0);
+            this.BottomContainer.Controls.Add(this.tableLayoutPanel1, 1, 0);
             this.BottomContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.BottomContainer.Location = new System.Drawing.Point(0, 0);
             this.BottomContainer.Name = "BottomContainer";
@@ -578,6 +585,65 @@
             this.pictureBox42.TabIndex = 3;
             this.pictureBox42.TabStop = false;
             // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.StartBtn, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.P1Label, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.P2Label, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.GetPlayerBtn, 0, 1);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(587, 3);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 4;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(201, 162);
+            this.tableLayoutPanel1.TabIndex = 1;
+            // 
+            // StartBtn
+            // 
+            this.StartBtn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.StartBtn.Location = new System.Drawing.Point(3, 3);
+            this.StartBtn.Name = "StartBtn";
+            this.StartBtn.Size = new System.Drawing.Size(195, 42);
+            this.StartBtn.TabIndex = 0;
+            this.StartBtn.Text = "Start";
+            this.StartBtn.UseVisualStyleBackColor = true;
+            // 
+            // P1Label
+            // 
+            this.P1Label.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.P1Label.Location = new System.Drawing.Point(3, 96);
+            this.P1Label.Name = "P1Label";
+            this.P1Label.Size = new System.Drawing.Size(195, 32);
+            this.P1Label.TabIndex = 1;
+            this.P1Label.Text = "P1:";
+            this.P1Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // P2Label
+            // 
+            this.P2Label.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.P2Label.Location = new System.Drawing.Point(3, 128);
+            this.P2Label.Name = "P2Label";
+            this.P2Label.Size = new System.Drawing.Size(195, 34);
+            this.P2Label.TabIndex = 2;
+            this.P2Label.Text = "P2: ";
+            this.P2Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // GetPlayerBtn
+            // 
+            this.GetPlayerBtn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.GetPlayerBtn.Location = new System.Drawing.Point(3, 51);
+            this.GetPlayerBtn.Name = "GetPlayerBtn";
+            this.GetPlayerBtn.Size = new System.Drawing.Size(195, 42);
+            this.GetPlayerBtn.TabIndex = 3;
+            this.GetPlayerBtn.Text = "Get players";
+            this.GetPlayerBtn.UseVisualStyleBackColor = true;
+            this.GetPlayerBtn.Click += new System.EventHandler(this.GetPlayerBtn_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -630,8 +696,18 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox40)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox41)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox42)).EndInit();
+            this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
         }
+
+        private System.Windows.Forms.Button GetPlayerBtn;
+
+        private System.Windows.Forms.Label P1Label;
+        private System.Windows.Forms.Label P2Label;
+
+        private System.Windows.Forms.Button StartBtn;
+
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.PictureBox pictureBox2;
