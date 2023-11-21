@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
-using ConnectFourGui;
+using ConnectFour;
 
-namespace ConnectFour
+namespace ConnectFourGui
 {
     static class Program
     {

@@ -13,6 +13,13 @@ namespace TestClient
                 s.Connect("127.0.0.1", 5000);
                 while (true)
                 {
+                    
+                    
+                    var buffer = new byte[1_024];
+                    var received = s.Receive(buffer, SocketFlags.None);
+                    var response = Encoding.UTF8.GetString(buffer, 0, received);
+                    Console.WriteLine(response);
+                    
                     Console.WriteLine("Write to Server: ");
                     var msg = Console.ReadLine();
                     if (string.IsNullOrWhiteSpace(msg))
@@ -20,11 +27,6 @@ namespace TestClient
 
                     var msgBytes = Encoding.UTF8.GetBytes(msg);
                     s.Send(msgBytes);
-                    
-                    var buffer = new byte[1_024];
-                    var received = s.Receive(buffer, SocketFlags.None);
-                    var response = Encoding.UTF8.GetString(buffer, 0, received);
-                    Console.WriteLine(response);
                 }
 
                 s.Shutdown(SocketShutdown.Both);

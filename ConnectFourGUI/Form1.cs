@@ -1,22 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Windows.Forms;
-using ConnectFour;
+using ServerClientLib;
 
-namespace ConnectFourGui
+namespace ConnectFour
 {
     public partial class Form1 : Form
     {
         private const int Rows = 6;
         private const int Columns = 7;
-        private Socket _mysock;
-        public readonly string[,] _board = new string[Rows, Columns];
+        private readonly Client _client = new Client();
+        private readonly string[,] _board = new string[Rows, Columns];
         private string _p1;
         private string _p2;
 
@@ -26,7 +21,7 @@ namespace ConnectFourGui
         {
             InitializeComponent();
             InitBoxes();
-            new Thread(StartSocket).Start();
+            _client.ReceivedMessage += ParseData;
         }
 
         private void PaintBox(object sender, PaintEventArgs e)
@@ -73,31 +68,10 @@ namespace ConnectFourGui
             var p = sender as PictureBox;
             p?.Invalidate();
         }
-
-        private void StartSocket()
+        
+        private void ParseData()
         {
-            using (var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
-            {
-                s.Connect("127.0.0.1", 5000);
-                _mysock = s;
-                OnConnected(s);
-            }
-        }
-
-        private void OnConnected(Socket handler)
-        {
-            while (true)
-            {
-                var buffer = new byte[1_024];
-                var received = handler.Receive(buffer, SocketFlags.None);
-                var data = Encoding.UTF8.GetString(buffer, 0, received);
-                Console.WriteLine(data);
-                ParseData(data);
-            }
-        }
-
-        private void ParseData(string msg)
-        {
+            var msg = _client.GetMessage();
             // 111221|221NNN
             // commmand|data
             var strings = msg.Split('|');
@@ -110,7 +84,7 @@ namespace ConnectFourGui
             switch (command)
             {
                 case "id":
-                    _mysock.Send(Encoding.UTF8.GetBytes("id|GUI"));
+                    _client.Send("id|GUI");
                     break;
                 case "players":
                     var players = data.Split(',');
@@ -156,7 +130,7 @@ namespace ConnectFourGui
 
         private void GetPlayerBtn_Click(object sender, EventArgs e)
         {
-            _mysock.Send(Encoding.UTF8.GetBytes("players|123"));
+            _client.Send("players|123");
         }
     }
 }

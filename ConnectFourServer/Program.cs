@@ -1,6 +1,4 @@
-﻿using ServerClientLib;
-
-namespace ConnectFourServer
+﻿namespace ConnectFourServer
 {
     internal class Program
     {

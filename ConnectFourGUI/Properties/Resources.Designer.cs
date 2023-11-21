@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ConnectFour.Properties {
+namespace ConnectFourGui.Properties {
     using System;
     
     
