@@ -2,37 +2,45 @@
 
 namespace MessageLib
 {
-    public struct MoveMsg : IMessage
+    public class MoveMsg : IMessage
     {
         private const char Delimiter = ',';
-        private int _row;
-        private int _column;
+        public int Row { get; private set; }
+        public int Column { get; private set; }
+        public string Player { get; private set; }
 
-        public void Set(int row, int column)
+        public IMessage Set(int row, int column, string player = null)
         {
-            _row = row;
-            _column = column;
+            Row = row;
+            Column = column;
+            Player = player;
+            return this;
         }
 
-        public bool Deserialize(string msg)
+        public IMessage Deserialize(string msg)
         {
             var items = msg.Split(Delimiter);
-            if (items.Length != 2)
-                return false;
+            if (items.Length < 2)
+                return null;
 
             if (!int.TryParse(items[0], out var row))
-                return false;
-            _row = row;
+                return null;
+            Row = row;
 
             if (!int.TryParse(items[1], out var column))
-                return false;
-            _column = column;
-            return true;
+                return null;
+            Column = column;
+            if (items.Length == 3)
+                Player = items[2];
+            return this;
         }
 
         public string Serialize()
         {
-            return _row.ToString() + Delimiter + _column;
+            var player = "";
+            if (Player != null)
+                player = Delimiter + Player;
+            return Row.ToString() + Delimiter + Column + player;
         }
     }
 }

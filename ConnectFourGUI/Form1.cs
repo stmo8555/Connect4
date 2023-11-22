@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using MessageLib;
 using ServerClientLib;
 
 namespace ConnectFour
@@ -63,52 +64,50 @@ namespace ConnectFour
             }
         }
 
+        private void Send(IMessage msg)
+        {
+            _client.Send(msg.Serialize());
+        }
+
         private void TriggerNewRender(object sender, EventArgs e)
         {
             var p = sender as PictureBox;
             p?.Invalidate();
         }
-        
+
         private void ParseData()
         {
-            var msg = _client.GetMessage();
-            // 111221|221NNN
-            // commmand|data
-            var strings = msg.Split('|');
-            if (strings.Length != 2)
+            if (!(new FullMessage().Deserialize(_client.GetMessage()) is FullMessage fullMessage))
                 return;
 
-            var command = strings[0].ToLower();
-            var data = strings[1];
 
-            switch (command)
+            switch (fullMessage.Command)
             {
-                case "id":
-                    _client.Send("id|GUI");
+                case Commands.Players:
+                    if (!(fullMessage.Message is PlayersMsg players))
+                        break;
+                    _p1 = players.P1;
+                    _p2 = players.P2;
+                    P1Label.Text += $@" {_p1}";
+                    P2Label.Text += $@" {_p2}";
                     break;
-                case "players":
-                    var players = data.Split(',');
-                    if (players.Length != 2)
-                        return;
-                    _p1 = players[0];
-                    _p2 = players[1];
-                    P1Label.Text += $@" {players[0]}";
-                    P2Label.Text += $@" {players[1]}";
+                case Commands.Id:
+                    Send(new FullMessage().Set(Commands.Id, new IdMsg().Set("GUI")));
                     break;
-                case "move":
-                    // player, 1, 2
-                    var index = data.Split(',');
-                    if (index.Length != 3)
-                        return;
-
-                    if (!int.TryParse(index[1], out var row))
-                        return;
-                    if (!int.TryParse(index[2], out var column))
-                        return;
-
-                    _board[row, column] = index[0];
-                    _boxes[row, column].Refresh();
+                case Commands.Move:
+                    if (!(fullMessage.Message is MoveMsg move))
+                        break;
+                    _board[move.Row, move.Column] = move.Player;
+                    _boxes[move.Row, move.Column].Refresh();
                     break;
+                case Commands.Start:
+                    break;
+                case Commands.Win:
+                    break;
+                case Commands.Disqualified:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             // to players
@@ -130,7 +129,7 @@ namespace ConnectFour
 
         private void GetPlayerBtn_Click(object sender, EventArgs e)
         {
-            _client.Send("players|123");
+            Send(new FullMessage().Set(Commands.Players, new PlayersMsg()));
         }
     }
 }

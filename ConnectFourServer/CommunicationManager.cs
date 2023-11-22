@@ -1,4 +1,5 @@
 ﻿using System;
+using MessageLib;
 using ServerClientLib;
 using ServerClientLib.Utils;
 
@@ -20,7 +21,7 @@ namespace ConnectFourServer
         {
             _server = server;
             server.MaxConnectionReached += ServerOnMaxConnectionReached;
-            server.ReceivedMessage += OnReceived;
+            server.ReceivedMessage += OnReceivedData;
             server.NewConnection += AskForId;
         }
 
@@ -29,87 +30,86 @@ namespace ConnectFourServer
             _server.Send("id|123", connection);
         }
 
-        public void SendToGui(string msg)
+        public void SendToGui(IMessage msg)
         {
-            _server.Send(msg, GuiConnection);
+            _server.Send(msg.Serialize(), GuiConnection);
         }
 
-        public void SendToP1(string msg)
+        public void SendToP1(IMessage msg)
         {
-            _server.Send(msg, P1Connection);
+            _server.Send(msg.Serialize(), P1Connection);
         }
 
-        public void SendToP2(string msg)
+        public void SendToP2(IMessage msg)
         {
-            _server.Send(msg, P2Connection);
+            _server.Send(msg.Serialize(), P2Connection);
         }
 
-        private void OnReceived(Connection sender)
+        private void OnReceivedData(Connection sender)
         {
             ParseData(sender, _server.GetMessage());
         }
 
         private void ServerOnMaxConnectionReached()
         {
-            SendToGui("connected|");
+            //
         }
 
         private void ParseData(Connection connection, string msg)
         {
-            // command|data
-            var strings = msg.Split('|');
-            if (strings.Length != 2)
+            if (!(new FullMessage().Deserialize(msg) is FullMessage fullMessage))
                 return;
 
-            var command = strings[0].ToLower();
-            var data = strings[1];
-
-            switch (command)
+            switch (fullMessage.Command)
             {
-                case "players":
+                case Commands.Players:
+                    
                     if (P1Connection == null || P2Connection == null)
                     {
                         Console.WriteLine("no name set for one of the players");
                         return;
                     }
-                    SendToGui($"players|{P1Connection.Id},{P2Connection.Id}");
+                    SendToGui(new FullMessage().Set(Commands.Players, new PlayersMsg().Set(P1Connection.Id, P2Connection.Id)));
                     break;
-                   
-                case "id":
 
-                    if (data == "GUI")
+                case Commands.Id:
+                    var id = (fullMessage.Message as IdMsg)?.Id;
+                    if (id == null) 
+                        break;
+                    
+                    if (id == "GUI" && GuiConnection == null)
                     {
                         GuiConnection = connection;
-                        GuiConnection.Id = data;
+                        GuiConnection.Id = id;
                         break;
                     }
 
                     if (P1Connection == null)
                     {
                         P1Connection = connection;
-                        P1Connection.Id = data;
+                        P1Connection.Id = id;
                         break;
                     }
 
                     if (P2Connection == null)
                     {
                         P2Connection = connection;
-                        P2Connection.Id = data;
+                        P2Connection.Id = id;
                     }
-                    break;
-                case "move":
-                    // 1,2
-                    var index = data.Split(',');
-                    if (index.Length != 2)
-                        return;
 
-                    if (!int.TryParse(index[0], out var row))
-                        return;
-                    if (!int.TryParse(index[1], out var column))
-                        return;
-
-                    NewMove?.Invoke(connection.Id, row, column);
                     break;
+                case Commands.Move:
+                    if (fullMessage.Message is MoveMsg move) 
+                        NewMove?.Invoke(connection.Id, move.Row, move.Column);
+                    break;
+                case Commands.Start:
+                    break;
+                case Commands.Win:
+                    break;
+                case Commands.Disqualified:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }

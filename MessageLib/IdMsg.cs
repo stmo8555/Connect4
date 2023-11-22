@@ -1,25 +1,27 @@
 ﻿namespace MessageLib
 {
-    public struct IdMsg : IMessage
+    public class IdMsg : IMessage
     {
-        private string _id;
+        public string Id { get; private set; }
 
-        public void Set(string id)
+        public IMessage Set(string id)
         {
-            _id = id;
+            Id = id;
+            return this;
         }
+        
 
-        public bool Deserialize(string msg)
+        public IMessage Deserialize(string msg)
         {
             if (string.IsNullOrWhiteSpace(msg))
-                return false;
-            _id = msg;
-            return true;
+                return null;
+            Id = msg;
+            return this;
         }
 
         public string Serialize()
         {
-            return _id;
+            return Id;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using MessageLib;
 using ServerClientLib;
 
 namespace ConnectFourServer
@@ -15,7 +16,6 @@ namespace ConnectFourServer
             InitBoard();
             _communicationManager = new CommunicationManager(new Server(3));
             _communicationManager.NewMove += LegalMove;
-            
         }
 
         private void LegalMove(string player, int row, int column)
@@ -39,12 +39,12 @@ namespace ConnectFourServer
             }
 
             InsertMove(player, row, column);
-            if (GameWon())
-                Console.WriteLine("Won!");
 
-            // replace with only send the latest move
-            var msg = "move|" + $"{player},{row},{column}";
-            _communicationManager.SendToGui(msg);
+            _communicationManager.SendToGui(
+                new FullMessage().Set(Commands.Move, new MoveMsg().Set(row, column, player)));
+
+            if (GameWon())
+                _communicationManager.SendToGui(new FullMessage().Set(Commands.Win, new WinMsg().Set(player)));
         }
 
         private bool GameWon()
@@ -56,7 +56,8 @@ namespace ConnectFourServer
                     var cell = _board[i, j];
                     if (cell == "N")
                         return false;
-                    return VerticalWin(i, j, cell) >= 4 || HorizontalWin(i, j, cell) >= 4 || DiagonalWin(i, j, cell) >= 4;
+                    return VerticalWin(i, j, cell) >= 4 || HorizontalWin(i, j, cell) >= 4 ||
+                           DiagonalWin(i, j, cell) >= 4;
                 }
             }
         }

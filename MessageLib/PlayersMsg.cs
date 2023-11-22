@@ -1,31 +1,32 @@
 ﻿namespace MessageLib
 {
-    public struct PlayersMsg : IMessage
+    public class PlayersMsg : IMessage
     {
         private const char Delimiter = ',';
-        private string _p1;
-        private string _p2;
+        public string P1 { get; private set; }
+        public string P2 { get; private set; }
 
-        public void Set(string p1, string p2)
+        public IMessage Set(string p1, string p2)
         {
-            _p1 = p1;
-            _p2 = p2;
+            P1 = p1;
+            P2 = p2;
+            return this;
         }
 
-        public bool Deserialize(string msg)
+        public IMessage Deserialize(string msg)
         {
             var items = msg.Split(Delimiter);
             if (items.Length != 2)
-                return false;
+                return null;
 
-            _p1 = items[0];
-            _p2 = items[1];
-            return true;
+            P1 = items[0];
+            P2 = items[1];
+            return this;
         }
 
         public string Serialize()
         {
-            return _p1 + Delimiter + _p2;
+            return P1 + Delimiter + P2;
         }
     }
 }

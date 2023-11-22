@@ -1,20 +1,21 @@
 ﻿namespace MessageLib
 {
-    public struct WinMsg : IMessage
+    public class WinMsg : IMessage
     {
         private string _player;
 
-        public void Set(string player)
+        public IMessage Set(string player)
         {
             _player = player;
+            return this;
         }
 
-        public bool Deserialize(string msg)
+        public IMessage Deserialize(string msg)
         {
             if (string.IsNullOrWhiteSpace(msg))
-                return false;
+                return null;
             _player = msg;
-            return true;
+            return this;
         }
 
         public string Serialize()

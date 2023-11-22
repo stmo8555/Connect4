@@ -1,8 +1,10 @@
-﻿namespace MessageLib
+﻿using System.Configuration;
+
+namespace MessageLib
 {
     public interface IMessage
     {
-        bool Deserialize(string msg);
+        IMessage Deserialize(string msg);
         string Serialize();
     }
 }
