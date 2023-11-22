@@ -129,7 +129,8 @@ namespace ConnectFour
 
         private void GetPlayerBtn_Click(object sender, EventArgs e)
         {
-            Send(new FullMessage().Set(Commands.Players, new PlayersMsg()));
+            var ad = new FullMessage().Set(Commands.Players, new PlayersMsg().Set("d", "dddd")).Serialize();
+            Send(new FullMessage().Set(Commands.Players, new PlayersMsg().Set("d","dddd")));
         }
     }
 }

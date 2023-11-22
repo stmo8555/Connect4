@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Text;
+using MessageLib;
+using ServerClientLib;
 
 namespace TestClient
 {
@@ -8,28 +11,33 @@ namespace TestClient
     {
         public static void Main(string[] args)
         {
-            using (var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+            var client = new Client();
+            client.ReceivedMessage += () => Console.WriteLine(client.GetMessage());
+
+
+            while (true)
             {
-                s.Connect("127.0.0.1", 5000);
-                while (true)
+                var command = "";
+                var data = "";
+                Console.WriteLine("Command:");
+                command = Console.ReadLine();
+                Console.WriteLine("Data;");
+                data = Console.ReadLine();
+
+                switch (command)
                 {
-                    
-                    
-                    var buffer = new byte[1_024];
-                    var received = s.Receive(buffer, SocketFlags.None);
-                    var response = Encoding.UTF8.GetString(buffer, 0, received);
-                    Console.WriteLine(response);
-                    
-                    Console.WriteLine("Write to Server: ");
-                    var msg = Console.ReadLine();
-                    if (string.IsNullOrWhiteSpace(msg))
+                    case "Id":
+                        client.Send(new FullMessage().Set(Commands.Id, new IdMsg().Set(data)).Serialize());
                         break;
+                    case "Move":
+                        if (data != null)
+                        {
+                            var split = data.Split(',');
+                            client.Send(new FullMessage().Set(Commands.Id, new MoveMsg().Set(Convert.ToInt32(split[0]), Convert.ToInt32(split[1]))).Serialize());
+                        }
 
-                    var msgBytes = Encoding.UTF8.GetBytes(msg);
-                    s.Send(msgBytes);
+                        break;
                 }
-
-                s.Shutdown(SocketShutdown.Both);
             }
         }
     }

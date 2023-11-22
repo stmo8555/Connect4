@@ -51,7 +51,7 @@ namespace MessageLib
 
         public string Serialize()
         {
-            return Command + Delimiter + Message.Serialize();
+            return Command + "|" + Message.Serialize();
         }
     }
 }

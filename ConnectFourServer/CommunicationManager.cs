@@ -27,7 +27,8 @@ namespace ConnectFourServer
 
         private void AskForId(Connection connection)
         {
-            _server.Send("id|123", connection);
+            var msg = new FullMessage().Set(Commands.Id, new IdMsg()).Serialize();
+            _server.Send(msg, connection);
         }
 
         public void SendToGui(IMessage msg)
