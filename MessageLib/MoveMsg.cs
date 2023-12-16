@@ -2,7 +2,7 @@
 
 namespace MessageLib
 {
-    public class MoveMsg : IMessage
+    public class MoveMsg : BaseMessage, IMessage
     {
         private const char Delimiter = ',';
         public int Row { get; private set; }
@@ -11,13 +11,14 @@ namespace MessageLib
 
         public IMessage Set(int row, int column, string player = null)
         {
+            SetCommand(Commands.Move);
             Row = row;
             Column = column;
             Player = player;
             return this;
         }
 
-        public IMessage Deserialize(string msg)
+        public new IMessage Deserialize(string msg)
         {
             var items = msg.Split(Delimiter);
             if (items.Length < 2)
@@ -35,7 +36,7 @@ namespace MessageLib
             return this;
         }
 
-        public string Serialize()
+        public new string Serialize()
         {
             var player = "";
             if (Player != null)

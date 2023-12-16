@@ -1,25 +1,28 @@
-﻿namespace MessageLib
+﻿using System.Runtime.CompilerServices;
+
+namespace MessageLib
 {
-    public class IdMsg : IMessage
+    public class IdMsg : BaseMessage, IMessage
     {
         public string Id { get; private set; }
 
         public IMessage Set(string id)
         {
+            SetCommand(Commands.Id);
             Id = id;
             return this;
         }
         
-
-        public IMessage Deserialize(string msg)
+        public new IMessage Deserialize(string msg)
         {
             if (string.IsNullOrWhiteSpace(msg))
                 return null;
+            
             Id = msg;
             return this;
         }
 
-        public string Serialize()
+        public new string Serialize()
         {
             return Id;
         }

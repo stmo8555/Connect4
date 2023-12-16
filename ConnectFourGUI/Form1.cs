@@ -77,14 +77,14 @@ namespace ConnectFour
 
         private void ParseData()
         {
-            if (!(new FullMessage().Deserialize(_client.GetMessage()) is FullMessage fullMessage))
+            if (!(new BaseMessage().Deserialize(_client.GetMessage()) is BaseMessage baseMessage))
                 return;
 
 
-            switch (fullMessage.Command)
+            switch (baseMessage.Command)
             {
                 case Commands.Players:
-                    if (!(fullMessage.Message is PlayersMsg players))
+                    if (!(baseMessage is PlayersMsg players))
                         break;
                     _p1 = players.P1;
                     _p2 = players.P2;
@@ -92,10 +92,10 @@ namespace ConnectFour
                     P2Label.Text += $@" {_p2}";
                     break;
                 case Commands.Id:
-                    Send(new FullMessage().Set(Commands.Id, new IdMsg().Set("GUI")));
+                    Send(new IdMsg().Set("GUI"));
                     break;
                 case Commands.Move:
-                    if (!(fullMessage.Message is MoveMsg move))
+                    if (!(baseMessage is MoveMsg move))
                         break;
                     _board[move.Row, move.Column] = move.Player;
                     _boxes[move.Row, move.Column].Refresh();
@@ -129,8 +129,7 @@ namespace ConnectFour
 
         private void GetPlayerBtn_Click(object sender, EventArgs e)
         {
-            var ad = new FullMessage().Set(Commands.Players, new PlayersMsg().Set("d", "dddd")).Serialize();
-            Send(new FullMessage().Set(Commands.Players, new PlayersMsg().Set("d","dddd")));
+            Send(new PlayersMsg());
         }
     }
 }

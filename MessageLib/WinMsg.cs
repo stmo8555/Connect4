@@ -1,16 +1,17 @@
 ﻿namespace MessageLib
 {
-    public class WinMsg : IMessage
+    public class WinMsg : BaseMessage, IMessage
     {
         private string _player;
 
         public IMessage Set(string player)
         {
+            SetCommand(Commands.Win);
             _player = player;
             return this;
         }
 
-        public IMessage Deserialize(string msg)
+        public new IMessage Deserialize(string msg)
         {
             if (string.IsNullOrWhiteSpace(msg))
                 return null;
@@ -18,7 +19,7 @@
             return this;
         }
 
-        public string Serialize()
+        public new string Serialize()
         {
             return _player;
         }
