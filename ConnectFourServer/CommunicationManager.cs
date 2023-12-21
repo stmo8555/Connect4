@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MessageLib;
 using ServerClientLib;
 using ServerClientLib.Utils;
@@ -9,10 +10,11 @@ namespace ConnectFourServer
     {
         private bool _playersConnected = false;
         private readonly Server _server;
+        private string _p1;
+        private string _p2;
+        private readonly Dictionary<string, Connection> _connections = new Dictionary<string, Connection>();
         private Connection GuiConnection { get; set; }
-        private Connection P1Connection { get; set; }
-        private Connection P2Connection { get; set; }
-
+        
         public delegate void MoveData(string player, int row, int column);
 
         public event MoveData NewMove;
@@ -27,23 +29,22 @@ namespace ConnectFourServer
 
         private void AskForId(Connection connection)
         {
-            var msg = new FullMessage().Set(Commands.Id, new IdMsg()).Serialize();
-            _server.Send(msg, connection);
+            _server.Send(new Message(new IdMsg(), nameof(IdMsg)).ToString(), connection);
         }
 
         public void SendToGui(IMessage msg)
         {
-            _server.Send(msg.Serialize(), GuiConnection);
+            _server.Send(msg.ToString(), GuiConnection);
         }
 
         public void SendToP1(IMessage msg)
         {
-            _server.Send(msg.Serialize(), P1Connection);
+            _server.Send(msg.ToString(), _connections[_p1]);
         }
 
         public void SendToP2(IMessage msg)
         {
-            _server.Send(msg.Serialize(), P2Connection);
+            _server.Send(msg.ToString(), _connections[_p1]);
         }
 
         private void OnReceivedData(Connection sender)
@@ -58,60 +59,61 @@ namespace ConnectFourServer
 
         private void ParseData(Connection connection, string msg)
         {
-            if (!(new FullMessage().Deserialize(msg) is FullMessage fullMessage))
-                return;
+            var obj = Message.ToObject(msg);
 
-            switch (fullMessage.Command)
+            if (obj == null)
             {
-                case Commands.Players:
-                    
-                    if (P1Connection == null || P2Connection == null)
-                    {
-                        Console.WriteLine("no name set for one of the players");
-                        return;
-                    }
-                    SendToGui(new FullMessage().Set(Commands.Players, new PlayersMsg().Set(P1Connection.Id, P2Connection.Id)));
+                Console.WriteLine("Failed to parse message");
+                return;
+            }
+            
+            switch (obj.Header.MsgType)
+            {
+                case nameof(PlayerMsg):
+                    HandlePlayerMsg(obj);
                     break;
-
-                case Commands.Id:
-                    var id = (fullMessage.Message as IdMsg)?.Id;
-                    if (id == null) 
-                        break;
-                    
-                    if (id == "GUI" && GuiConnection == null)
-                    {
-                        GuiConnection = connection;
-                        GuiConnection.Id = id;
-                        break;
-                    }
-
-                    if (P1Connection == null)
-                    {
-                        P1Connection = connection;
-                        P1Connection.Id = id;
-                        break;
-                    }
-
-                    if (P2Connection == null)
-                    {
-                        P2Connection = connection;
-                        P2Connection.Id = id;
-                    }
-
+                case nameof(IdMsg):
+                    HandleIdMsg(connection, obj);
                     break;
-                case Commands.Move:
-                    if (fullMessage.Message is MoveMsg move) 
-                        NewMove?.Invoke(connection.Id, move.Row, move.Column);
-                    break;
-                case Commands.Start:
-                    break;
-                case Commands.Win:
-                    break;
-                case Commands.Disqualified:
+                case nameof(MoveMsg):
+                    HandleMoveMsg(connection, obj);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void HandlePlayerMsg(Message obj)
+        {
+            var player = obj.Convert<PlayerMsg>();
+            
+            SendToGui(new Message(new PlayerMsg().Set(player.Player), nameof(PlayerMsg)));
+        }
+
+        private void HandleIdMsg(Connection connection, Message obj)
+        {
+            var idMsg = obj.Convert<IdMsg>();
+            
+            var id = idMsg.Id;
+            if (id == "GUI" && GuiConnection == null)
+            {
+                GuiConnection = connection;
+                GuiConnection.Id = id;
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                connection.Close();
+                return;
+            }
+            
+            _connections.Add(id, connection);
+        }
+
+        private void HandleMoveMsg(Connection connection, Message obj)
+        {
+            var moveMsg = obj.Convert<MoveMsg>();
+            NewMove?.Invoke(connection.Id, moveMsg.Row, moveMsg.Column);
         }
     }
 }

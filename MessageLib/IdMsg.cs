@@ -2,27 +2,27 @@
 
 namespace MessageLib
 {
-    public class IdMsg : BaseMessage, IMessage
+    public class IdMsg : IMessage
     {
         public string Id { get; private set; }
-
-        public IMessage Set(string id)
+        
+        public IdMsg Set(string id)
         {
-            SetCommand(Commands.Id);
             Id = id;
             return this;
         }
         
-        public new IMessage Deserialize(string msg)
+
+        public static IdMsg ToObject(int headerLength, string msg)
         {
-            if (string.IsNullOrWhiteSpace(msg))
+            if (msg.Length <= headerLength)
                 return null;
-            
-            Id = msg;
-            return this;
+
+            msg = msg.Substring(headerLength - 1);
+            return string.IsNullOrWhiteSpace(msg) ? null : new IdMsg().Set(msg);
         }
 
-        public new string Serialize()
+        public override string ToString()
         {
             return Id;
         }

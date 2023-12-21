@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using MessageLib;
 using ServerClientLib;
+using Message = MessageLib.Message;
 
 namespace ConnectFour
 {
@@ -66,7 +67,7 @@ namespace ConnectFour
 
         private void Send(IMessage msg)
         {
-            _client.Send(msg.Serialize());
+            _client.Send(msg.ToString());
         }
 
         private void TriggerNewRender(object sender, EventArgs e)
@@ -77,34 +78,27 @@ namespace ConnectFour
 
         private void ParseData()
         {
-            if (!(new BaseMessage().Deserialize(_client.GetMessage()) is BaseMessage baseMessage))
-                return;
+            
+            var obj = Message.ToObject(_client.GetMessage());
 
-
-            switch (baseMessage.Command)
+            if (obj == null)
             {
-                case Commands.Players:
-                    if (!(baseMessage is PlayersMsg players))
-                        break;
-                    _p1 = players.P1;
-                    _p2 = players.P2;
-                    P1Label.Text += $@" {_p1}";
-                    P2Label.Text += $@" {_p2}";
+                Console.WriteLine(@"Failed to parse message");
+                return;
+            }
+            
+
+
+            switch (obj.Header.MsgType)
+            {
+                case nameof(PlayerMsg):
+                    HandlePlayersMsg(obj);
                     break;
-                case Commands.Id:
-                    Send(new IdMsg().Set("GUI"));
+                case nameof(IdMsg):
+                    HandleIdMsg(obj);
                     break;
-                case Commands.Move:
-                    if (!(baseMessage is MoveMsg move))
-                        break;
-                    _board[move.Row, move.Column] = move.Player;
-                    _boxes[move.Row, move.Column].Refresh();
-                    break;
-                case Commands.Start:
-                    break;
-                case Commands.Win:
-                    break;
-                case Commands.Disqualified:
+                case nameof(MoveMsg):
+                    HandleMoveMsg(obj);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -127,9 +121,27 @@ namespace ConnectFour
             //Invoke(new MethodInvoker(() => markerHolder.Refresh()));
         }
 
+        private void HandlePlayersMsg(Message obj)
+        {
+            var player = obj.Convert<PlayerMsg>();
+            MessageBox.Show(player.Player);
+        }
+
+        private void HandleIdMsg(Message obj)
+        {
+            Send(new IdMsg().Set("GUI"));
+        }
+
+        private void HandleMoveMsg(Message obj)
+        {
+            var move = obj.Convert<MoveMsg>();
+            _board[move.Row, move.Column] = move.Player;
+            _boxes[move.Row, move.Column].Refresh();
+        }
+
         private void GetPlayerBtn_Click(object sender, EventArgs e)
         {
-            Send(new PlayersMsg());
+            Send(new PlayerMsg());
         }
     }
 }

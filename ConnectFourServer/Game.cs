@@ -41,25 +41,29 @@ namespace ConnectFourServer
             InsertMove(player, row, column);
 
             _communicationManager.SendToGui(
-                new FullMessage().Set(Commands.Move, new MoveMsg().Set(row, column, player)));
+                new MoveMsg().Set(row, column, player));
 
             if (GameWon())
-                _communicationManager.SendToGui(new FullMessage().Set(Commands.Win, new WinMsg().Set(player)));
+                _communicationManager.SendToGui(new WinMsg().Set(player));
         }
 
         private bool GameWon()
         {
-            for (var i = 0; true; i++)
+            for (var i = 0; i < Rows; i++)
             {
-                for (var j = 0; true; j++)
+                for (var j = 0; j < Columns; j++)
                 {
                     var cell = _board[i, j];
                     if (cell == "N")
-                        return false;
-                    return VerticalWin(i, j, cell) >= 4 || HorizontalWin(i, j, cell) >= 4 ||
-                           DiagonalWin(i, j, cell) >= 4;
+                        continue;
+                    var win = VerticalWin(i, j, cell) >= 4 || HorizontalWin(i, j, cell) >= 4 ||
+                              DiagonalWin(i, j, cell) >= 4;
+                    if (win)
+                        return true;
                 }
             }
+
+            return false;
         }
 
         private int DiagonalWin(int row, int column, string player)

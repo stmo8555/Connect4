@@ -1,27 +1,27 @@
 ﻿namespace MessageLib
 {
-    public class WinMsg : BaseMessage, IMessage
+    public class WinMsg : IMessage
     {
         private string _player;
 
-        public IMessage Set(string player)
+        public WinMsg Set(string player)
         {
-            SetCommand(Commands.Win);
             _player = player;
             return this;
         }
-
-        public new IMessage Deserialize(string msg)
-        {
-            if (string.IsNullOrWhiteSpace(msg))
-                return null;
-            _player = msg;
-            return this;
-        }
-
-        public new string Serialize()
+        
+        public override string ToString()
         {
             return _player;
+        }
+        
+        public static WinMsg ToObject(int headerLength,string msg)
+        {
+            if (msg.Length <= headerLength)
+                return null;
+            
+            msg = msg.Substring(headerLength - 1);
+            return string.IsNullOrWhiteSpace(msg) ? null : new WinMsg().Set(msg);
         }
     }
 }

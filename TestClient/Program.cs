@@ -27,15 +27,14 @@ namespace TestClient
                 switch (command)
                 {
                     case "Id":
-                        client.Send(new FullMessage().Set(Commands.Id, new IdMsg().Set(data)).Serialize());
+                        client.Send(new Message(new IdMsg().Set(data), nameof(IdMsg)).ToString());
                         break;
                     case "Move":
                         if (data != null)
                         {
                             var split = data.Split(',');
-                            client.Send(new FullMessage().Set(Commands.Id, new MoveMsg().Set(Convert.ToInt32(split[0]), Convert.ToInt32(split[1]))).Serialize());
+                            client.Send(new Message(new MoveMsg().Set(Convert.ToInt32(split[0]), Convert.ToInt32(split[1])), nameof(MoveMsg)).ToString());
                         }
-
                         break;
                 }
             }

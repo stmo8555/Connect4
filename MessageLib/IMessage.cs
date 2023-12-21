@@ -1,10 +1,11 @@
-﻿using System.Configuration;
+﻿
+
+using System.Runtime.CompilerServices;
 
 namespace MessageLib
 {
     public interface IMessage
     {
-        IMessage Deserialize(string msg);
-        string Serialize();
+        string ToString();
     }
 }
