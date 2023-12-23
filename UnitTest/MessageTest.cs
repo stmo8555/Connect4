@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using NUnit.Framework;
 using MessageLib;
 namespace UnitTest
 {
@@ -12,7 +13,7 @@ namespace UnitTest
             private IdMsg _idMsg;
             private string _idMsgStr = Player;
             private PlayerMsg _playerMsg;
-            private string _playerMsgStr = Player;
+            private string _playerMsgStr = "Berit,Gandalf,Svan";
             private WinMsg _winMsg;
             private string _winMsgStr = Player;
             private const int Row = 1;
@@ -25,7 +26,7 @@ namespace UnitTest
                 _moveMsg = new MoveMsg().Set(Row, Column, Player);
                 _moveMsg2 = new MoveMsg().Set(Row, Column);
                 _idMsg = new IdMsg().Set(Player);
-                _playerMsg = new PlayerMsg().Set(Player);
+                _playerMsg = new PlayerMsg().Set(new List<string> { "Berit", "Gandalf", "Svan" });
                 _winMsg = new WinMsg().Set(Player);
             }
             [Test]

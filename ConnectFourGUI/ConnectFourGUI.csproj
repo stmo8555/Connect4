@@ -94,6 +94,10 @@
       </Content>
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\ConnecFourApi\ConnecFourApi.csproj">
+        <Project>{3e8d390e-fdf6-4f5b-8e62-734ee7a438ab}</Project>
+        <Name>ConnecFourApi</Name>
+      </ProjectReference>
       <ProjectReference Include="..\MessageLib\MessageLib.csproj">
         <Project>{95acb6ba-e3fe-4c40-b08c-9b93a7c75dce}</Project>
         <Name>MessageLib</Name>

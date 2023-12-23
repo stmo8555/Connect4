@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MessageLib;
 using ServerClientLib;
 using ServerClientLib.Utils;
@@ -70,7 +71,7 @@ namespace ConnectFourServer
             switch (obj.MessageType())
             {
                 case nameof(PlayerMsg):
-                    HandlePlayerMsg(obj);
+                    HandlePlayerMsg(connection);
                     break;
                 case nameof(IdMsg):
                     HandleIdMsg(connection, obj);
@@ -83,11 +84,11 @@ namespace ConnectFourServer
             }
         }
 
-        private void HandlePlayerMsg(Message obj)
+        private void HandlePlayerMsg(Connection c)
         {
-            var player = obj.Convert<PlayerMsg>();
-            
-            SendToGui(new Message(new PlayerMsg().Set(player.Player)));
+            var players = _connections.Select(p => p.Key).ToList();
+            // SendToGui(new Message(new PlayerMsg().Set(players)));
+            _server.Send(new Message(new PlayerMsg().Set(players)).ToString(), c);
         }
 
         private void HandleIdMsg(Connection connection, Message obj)

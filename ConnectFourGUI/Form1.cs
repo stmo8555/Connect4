@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using ConnectFourApi;
 using MessageLib;
 using ServerClientLib;
 using Message = MessageLib.Message;
@@ -12,18 +13,17 @@ namespace ConnectFour
     {
         private const int Rows = 6;
         private const int Columns = 7;
-        private readonly Client _client = new Client();
         private readonly string[,] _board = new string[Rows, Columns];
         private string _p1;
         private string _p2;
-
         private readonly PictureBox[,] _boxes = new PictureBox[6, 7];
+        private readonly GuiApi _api;
 
         public Form1()
         {
             InitializeComponent();
             InitBoxes();
-            _client.ReceivedMessage += ParseData;
+            _api = new GuiApi(OnMoveReceived, OnWinReceived);
         }
 
         private void PaintBox(object sender, PaintEventArgs e)
@@ -65,83 +65,41 @@ namespace ConnectFour
             }
         }
 
-        private void Send(IMessage msg)
-        {
-            _client.Send(msg.ToString());
-        }
-
         private void TriggerNewRender(object sender, EventArgs e)
         {
             var p = sender as PictureBox;
             p?.Invalidate();
         }
 
-        private void ParseData()
+        private void OnMoveReceived(int row, int column, string player)
         {
-            
-            var obj = Message.ToObject(_client.GetMessage());
-
-            if (obj == null)
+            if (InvokeRequired)
             {
-                Console.WriteLine(@"Failed to parse message");
-                return;
+                Invoke(new MethodInvoker(() => OnMoveReceived(row, column, player)));
             }
-            
-
-
-            switch (obj.MessageType())
+            else
             {
-                case nameof(PlayerMsg):
-                    HandlePlayersMsg(obj);
-                    break;
-                case nameof(IdMsg):
-                    HandleIdMsg(obj);
-                    break;
-                case nameof(MoveMsg):
-                    HandleMoveMsg(obj);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                _board[row, column] = player;
+                _boxes[row, column].Refresh();
             }
-
-            // to players
-            // var boardRows = msg.Split('|');
-            // if (boardRows.Length != 6)
-            //     return;
-            // for (var i = 0; i < boardRows.Length; i++)
-            // {
-            //     var row = boardRows[i];
-            //     for (var j = 0; j < boardRows[i].Length; j++)
-            //     {
-            //         _board[i, j] = row[j].ToString();
-            //     }
-            // }
-
-
-            //Invoke(new MethodInvoker(() => markerHolder.Refresh()));
         }
-
-        private void HandlePlayersMsg(Message obj)
+        
+        private void OnWinReceived(string player)
         {
-            var player = obj.Convert<PlayerMsg>();
-            MessageBox.Show(player.Player);
-        }
-
-        private void HandleIdMsg(Message obj)
-        {
-            Send(new IdMsg().Set("GUI"));
-        }
-
-        private void HandleMoveMsg(Message obj)
-        {
-            var move = obj.Convert<MoveMsg>();
-            _board[move.Row, move.Column] = move.Player;
-            _boxes[move.Row, move.Column].Refresh();
+            if (InvokeRequired)
+            {
+                Invoke(new MethodInvoker(() => OnWinReceived(player)));
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private void GetPlayerBtn_Click(object sender, EventArgs e)
         {
-            Send(new PlayerMsg());
+            var players = _api.GetPlayers();
+            MessageBox.Show(string.Join(",", players));
         }
     }
 }

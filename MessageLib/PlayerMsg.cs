@@ -1,15 +1,17 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace MessageLib
 {
     public class PlayerMsg : IMessage
     {
-        public string Player { get; private set; }
+        private const char Delimiter = ',';
+        public List<string> Players { get; private set; }
         
         
-        public PlayerMsg Set(string player)
+        public PlayerMsg Set(List<string> players)
         {
-            Player = player;
+            Players = players;
             return this;
         }
         public string MessageType()
@@ -19,11 +21,22 @@ namespace MessageLib
         
         public override string ToString()
         {
-            return Player;
+            var str = "";
+            for (var i = 0; i < Players.Count; i++)
+            {
+                str += Players[i];
+                if (i != Players.Count - 1)
+                    str += Delimiter;
+            }
+            
+            return str;
         }
         public static PlayerMsg ToObject(string msg)
         {
-            return string.IsNullOrWhiteSpace(msg) ? null : new PlayerMsg().Set(msg);
+            var players = msg.Split(Delimiter).ToList();
+            
+            
+            return new PlayerMsg().Set(players);
         }
         
         // For UnitTest
@@ -34,7 +47,7 @@ namespace MessageLib
 
             var other = (PlayerMsg)obj;
             
-            return Player == other.Player;
+            return Players.SequenceEqual(other.Players);
         }
     }
 }
