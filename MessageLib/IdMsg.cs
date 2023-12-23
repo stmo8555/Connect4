@@ -13,18 +13,30 @@ namespace MessageLib
         }
         
 
-        public static IdMsg ToObject(int headerLength, string msg)
+        public static IdMsg ToObject(string msg)
         {
-            if (msg.Length <= headerLength)
-                return null;
-
-            msg = msg.Substring(headerLength - 1);
             return string.IsNullOrWhiteSpace(msg) ? null : new IdMsg().Set(msg);
         }
 
         public override string ToString()
         {
             return Id;
+        }
+
+        public string MessageType()
+        {
+            return nameof(IdMsg);
+        }
+        
+        // For UnitTest
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+
+            var other = (IdMsg)obj;
+
+            return Id == other.Id;
         }
     }
 }

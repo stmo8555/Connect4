@@ -1,5 +1,6 @@
 ﻿using System;
 using System.CodeDom;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace MessageLib
@@ -7,32 +8,36 @@ namespace MessageLib
     public class Message : IMessage
     {
         private readonly string _data;
-        public Header Header { get; }
+        private readonly Header _header;
 
-        public Message(IMessage data, string msgType)
+        public Message(IMessage data)
         {
             _data = data.ToString();
-            Header = new Header(msgType);
+            _header = new Header(data.MessageType());
         }
 
         private Message(Header header, string data)
         {
-            Header = header;
+            _header = header;
             _data = data;
+        }
+        public string MessageType()
+        {
+            return _header.MsgType;
         }
 
         public T Convert<T>() where T : class
         {
-            switch (Header.MsgType)
+            switch (_header.MsgType)
             {
                 case nameof(IdMsg):
-                    return IdMsg.ToObject(Header.HeaderLength, _data) as T;
+                    return IdMsg.ToObject(_data) as T;
                 case nameof(MoveMsg):
-                    return MoveMsg.ToObject(Header.HeaderLength, _data) as T;
+                    return MoveMsg.ToObject(_data) as T;
                 case nameof(PlayerMsg):
-                    return PlayerMsg.ToObject(Header.HeaderLength, _data) as T;
+                    return PlayerMsg.ToObject(_data) as T;
                 case nameof(WinMsg):
-                    return WinMsg.ToObject(Header.HeaderLength, _data) as T;
+                    return WinMsg.ToObject(_data) as T;
             }
 
             return null;
@@ -41,12 +46,12 @@ namespace MessageLib
         public static Message ToObject(string msg)
         {
             var header = Header.ToObject(msg);
-            return header == null ? null : new Message(header, msg.Substring(1, header.HeaderLength - 1));
+            return header == null ? null : new Message(header, msg.Substring(header.HeaderLength));
         }
 
         public override string ToString()
         {
-            return Header + _data;
+            return _header + _data;
         }
     }
 
@@ -58,7 +63,7 @@ namespace MessageLib
         internal Header(string msgType)
         {
             MsgType = msgType;
-            HeaderLength = MsgType.Length;
+            HeaderLength = $"{MsgType.Length + 1}{MsgType}".Length;
         }
 
         public override string ToString()
@@ -68,10 +73,20 @@ namespace MessageLib
 
         public static Header ToObject(string msg)
         {
-            if (!int.TryParse(msg[0].ToString(), out var headerLength))
+            var count = 0;
+
+            foreach (var c in msg)
+            {
+                if (char.IsDigit(c))
+                    count++;
+                else
+                    break;
+            }
+
+            if (!int.TryParse(msg.Substring(0, count), out var headerLength))
                 return null;
             
-            return msg.Length >= headerLength ? new Header(msg.Substring(1,  headerLength)) : null;
+            return msg.Length >= headerLength ? new Header(msg.Substring(count,  headerLength - count)) : null;
         }
     }
     

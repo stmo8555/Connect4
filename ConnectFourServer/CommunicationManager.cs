@@ -29,7 +29,7 @@ namespace ConnectFourServer
 
         private void AskForId(Connection connection)
         {
-            _server.Send(new Message(new IdMsg(), nameof(IdMsg)).ToString(), connection);
+            _server.Send(new Message(new IdMsg()).ToString(), connection);
         }
 
         public void SendToGui(IMessage msg)
@@ -67,7 +67,7 @@ namespace ConnectFourServer
                 return;
             }
             
-            switch (obj.Header.MsgType)
+            switch (obj.MessageType())
             {
                 case nameof(PlayerMsg):
                     HandlePlayerMsg(obj);
@@ -87,7 +87,7 @@ namespace ConnectFourServer
         {
             var player = obj.Convert<PlayerMsg>();
             
-            SendToGui(new Message(new PlayerMsg().Set(player.Player), nameof(PlayerMsg)));
+            SendToGui(new Message(new PlayerMsg().Set(player.Player)));
         }
 
         private void HandleIdMsg(Connection connection, Message obj)

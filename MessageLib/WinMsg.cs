@@ -2,26 +2,38 @@
 {
     public class WinMsg : IMessage
     {
-        private string _player;
+        public string Player { get; private set; }
 
         public WinMsg Set(string player)
         {
-            _player = player;
+            Player = player;
             return this;
         }
         
         public override string ToString()
         {
-            return _player;
+            return Player;
         }
         
-        public static WinMsg ToObject(int headerLength,string msg)
+        public string MessageType()
         {
-            if (msg.Length <= headerLength)
-                return null;
-            
-            msg = msg.Substring(headerLength - 1);
+            return nameof(WinMsg);
+        }
+        
+        public static WinMsg ToObject(string msg)
+        {
             return string.IsNullOrWhiteSpace(msg) ? null : new WinMsg().Set(msg);
+        }
+
+        // For UnitTest
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+
+            var other = (WinMsg)obj;
+            
+            return Player == other.Player;
         }
     }
 }

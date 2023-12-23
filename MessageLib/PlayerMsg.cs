@@ -4,7 +4,6 @@ namespace MessageLib
 {
     public class PlayerMsg : IMessage
     {
-        private const char Delimiter = ',';
         public string Player { get; private set; }
         
         
@@ -13,19 +12,29 @@ namespace MessageLib
             Player = player;
             return this;
         }
+        public string MessageType()
+        {
+            return nameof(PlayerMsg);
+        }
         
         public override string ToString()
         {
             return Player;
         }
-        public static PlayerMsg ToObject(int headerLength,string msg)
+        public static PlayerMsg ToObject(string msg)
         {
-            if (msg.Length <= headerLength)
-                return null;
-            
-            msg = msg.Substring(headerLength - 1);
-            
             return string.IsNullOrWhiteSpace(msg) ? null : new PlayerMsg().Set(msg);
+        }
+        
+        // For UnitTest
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+
+            var other = (PlayerMsg)obj;
+            
+            return Player == other.Player;
         }
     }
 }

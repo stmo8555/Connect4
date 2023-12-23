@@ -89,7 +89,7 @@ namespace ConnectFour
             
 
 
-            switch (obj.Header.MsgType)
+            switch (obj.MessageType())
             {
                 case nameof(PlayerMsg):
                     HandlePlayersMsg(obj);
